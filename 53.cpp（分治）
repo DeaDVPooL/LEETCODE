@@ -1,0 +1,26 @@
+static const auto io_sync_off = []()
+{
+	// turn off sync
+	std::ios::sync_with_stdio(false);
+	// untie in/out streams
+	std::cin.tie(nullptr);
+	return nullptr;
+}();
+class Solution {
+public:
+    int maxsum(vector<int>& nums,int l,int r)
+    {
+        int v,L,R;
+        if(r-l==1) return   nums[l];
+        int m = l+(r-l)/2;
+        int MAXS = max(maxsum(nums,l,m),maxsum(nums,m,r));
+        v = 0;L = nums[m-1];
+        for(int i=m-1;i>=l;i--) L = max(L,v+=nums[i]);
+        v = 0;R = nums[m];
+        for(int i=m;i<r;i++)   R = max(R,v+=nums[i]);
+        return max(MAXS,L+R);
+    }
+    int maxSubArray(vector<int>& nums) {
+        return maxsum(nums,0,nums.size());
+    }
+};
