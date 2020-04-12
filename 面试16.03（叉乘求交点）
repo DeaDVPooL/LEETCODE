@@ -1,0 +1,131 @@
+const double eps = 1e-6;
+double add(double a, double b) {
+    if(fabs(a + b) < eps * (fabs(a) + fabs(b))) return 0;
+    return a + b;
+}
+int dcmp(double x) {
+    if(fabs(x) < eps) return 0;
+    else return x<0?-1:1;
+}
+struct P {
+    double x, y;
+    P(){}
+    P(double x, double y) :x(x), y(y){}
+    bool operator == (P p) {
+        return dcmp(x - p.x) == 0 && dcmp(y - p.y) == 0;
+    }
+    P operator + (P p) {
+        return P(add(x, p.x), add(y, p.y));
+    }
+    P operator - (P p) {
+        return P(add(x, -p.x), add(y, -p.y));
+    }
+    P operator * (double p) {
+        return P(x * p, y * p);
+    }
+    P operator / (double p) {
+        return P(x / p, y / p);
+    }
+    double dot(P p) {
+        return add(x * p.x, y * p.y);
+    }
+    double cross(P p) {
+        return add(x * p.y, -y * p.x);
+    }
+};
+typedef P Vector;
+class Solution {
+public:
+    int flag = 0;
+    double area2(Vector a, Vector b, Vector c) {
+        return (b - a).cross(c - a);
+    }
+    bool on_seg(P p, Vector a, Vector b) {
+        return (a - p).cross(b - p) == 0 && (a - p).dot(b - p) <= 0;
+    }
+    bool _intersect(Vector a, Vector b, Vector c, Vector d) {
+        if((area2(a, b, c) == 0 && area2(a, b, d) == 0 && !on_seg(a, c, d) && !on_seg(b, c, d))
+        || area2(a, b, c) * area2(a, b, d) > 0
+        || area2(c, d, a) * area2(c, d, b) > 0) return false;
+        return true;
+    }
+    P GetCrossPoint(Vector a,Vector b,Vector c,Vector d)
+    {
+        if (_intersect(a,b,c,d))
+        {
+            flag = 1;
+            return P((c.x*area2(a,b,d)-d.x*area2(a,b,c))/(area2(a,b,d)-area2(a,b,c)),(c.y*area2(a,b,d)-d.y*area2(a,b,c))/(area2(a,b,d)-area2(a,b,c)));
+        }
+        else return P(0,0);
+    }
+    vector<double> intersection(vector<int>& start1, vector<int>& end1, vector<int>& start2, vector<int>& end2) {
+        vector<double> ans;
+        Vector v,s1(start1[0],start1[1]),e1(end1[0],end1[1]),s2(start2[0],start2[1]),e2(end2[0],end2[1]);
+        if(on_seg(s1,s2,e2)&&on_seg(e1,s2,e2))
+        {
+            double x,y;
+            if(s1.x<e1.x)
+            {
+                x = s1.x;
+                y = s1.y;
+            }else if(s1.x==e1.x)
+            {
+                x = s1.x;
+                y = s1.y<e1.y?s1.y:e1.y;
+            }else
+            {
+                x = e1.x;
+                y = e1.y;
+            }
+            ans.push_back(x);
+            ans.push_back(y);
+            return ans;
+        }
+        else if(on_seg(s2,s1,e1)&&on_seg(e2,s1,e1))
+        {
+            double x,y;
+            if(s2.x<e2.x)
+            {
+                x = s2.x;
+                y = s2.y;
+            }else if(s2.x==e2.x)
+            {
+                x = s2.x;
+                y = s2.y<e2.y?s2.y:e2.y;
+            }else
+            {
+                x = e2.x;
+                y = e2.y;
+            }
+            ans.push_back(x);
+            ans.push_back(y);
+            return ans;
+        }
+        if(on_seg(s1,s2,e2))
+        {
+            ans.push_back(s1.x);
+            ans.push_back(s1.y);
+            return ans;
+        }else if(on_seg(e1,s2,e2))
+        {
+            ans.push_back(e1.x);
+            ans.push_back(e1.y);
+            return ans;
+        }else if(on_seg(s2,s1,e1))
+        {
+            ans.push_back(s2.x);
+            ans.push_back(s2.y);
+            return ans;
+        }else if(on_seg(e2,s1,e1))
+        {
+            ans.push_back(e2.x);
+            ans.push_back(e2.y);
+            return ans;
+        }
+        v = GetCrossPoint(s1,e1,s2,e2);
+        if(!flag)   return ans;
+        ans.push_back(v.x);
+        ans.push_back(v.y);
+        return ans;
+    }
+};
